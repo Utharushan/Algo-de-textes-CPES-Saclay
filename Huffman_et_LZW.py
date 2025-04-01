@@ -51,47 +51,42 @@ def arbre_huffman(occurrences):
 		heappush(tas, (occ, compteur, lettre))
 		compteur += 1
 	while len(tas) >= 2:
-		occ1, c1, noeud1 = heappop(tas) 
-		occ2, c2, noeud2 = heappop(tas) 
+		occ1, c1, noeud1 = heappop(tas)
+		occ2, c2, noeud2 = heappop(tas)
 		heappush(tas, (occ1 + occ2, compteur, {0: noeud1, 1: noeud2}))
 		compteur += 1
 	return heappop(tas)[2]
 
-
 def table_frequences(texte):
 	table = {}
 	for caractere in texte:
-		if caractere in table:
-			table[caractere] = table[caractere] + 1
-		else:
-			table[caractere] = 1
+		table[caractere] = table.get(caractere, 0) + 1
 	return table
 
-def code_huffman_parcours(arbre,prefixe,code):
-	for noeud in arbre:
-		if len(arbre[noeud]) == 1:
-			code[prefixe+str(noeud)] = arbre[noeud]
-		else:
-			code_huffman_parcours(arbre[noeud],prefixe+str(noeud),code)
+def code_huffman_parcours(arbre, prefixe, code):
+	if isinstance(arbre, str):
+		code[arbre] = prefixe
+	else:
+		code_huffman_parcours(arbre[0], prefixe + '0', code)
+		code_huffman_parcours(arbre[1], prefixe + '1', code)
 
 def code_huffman(arbre):
 	code = {}
-	code_huffman_parcours(arbre,'',code)
+	code_huffman_parcours(arbre, '', code)
 	return code
 
-def encodage(texte,code):
-	code_inv = dict((code[bits], bits) for bits in code)
-	texte_binaire = ''
-	for c in texte:
-		texte_binaire = texte_binaire + code_inv[c]
+def encodage(texte, code):
+	texte_binaire = ''.join(code[c] for c in texte)
 	return texte_binaire
-def decodage(code,texte_binaire):
+
+def decodage(code, texte_binaire):
+	code_inv = {v: k for k, v in code.items()}
 	texte = ''
 	tampon = ''
 	for b in texte_binaire:
-		tampon = tampon+b
-		if tampon in code:
-			texte = texte+code[tampon]
+		tampon += b
+		if tampon in code_inv:
+			texte += code_inv[tampon]
 			tampon = ''
 	return texte
 
@@ -107,7 +102,7 @@ b = encodage(romeo_and_juliet, a)
 
 print(f"Taille du code : {len(b)}\n\
 Taille du texte : {len(romeo_and_juliet)}\n\
-Compression de 'Romeo and Juliet' : {(len(b) / len(romeo_and_juliet)) * 100}\n")
+Compression de 'Romeo and Juliet' : {(len(b) / (len(romeo_and_juliet) * 8)) * 100}\n")
 
 with open('Le_Tour_du_monde_en_quatre-vingts_jours.txt') as file_object:
 	tour_du_monde = file_object.read()
@@ -117,7 +112,7 @@ b = encodage(tour_du_monde, a)
 
 print(f"Taille du code : {len(b)}\n\
 Taille du texte : {len(tour_du_monde)}\n\
-Compression de 'Le Tour du monde en quatre-vingts jours' : {(len(b) / len(tour_du_monde)) * 100}\n")
+Compression de 'Le Tour du monde en quatre-vingts jours' : {(len(b) / (len(tour_du_monde) * 8)) * 100}\n")
 
 #------------------------------------------------------------------------------
 
@@ -128,11 +123,11 @@ with open('romeo_and_juliet.txt') as file_object:
 
 print(f"Taille du code : {len(LZW(romeo_and_juliet)[0])}\n\
 Taille du texte : {len(romeo_and_juliet)}\n\
-Compression de 'Romeo and Juliet' : {(len(LZW(romeo_and_juliet)[0])/len(romeo_and_juliet))*100}\n")
+Compression de 'Romeo and Juliet' : {(len(LZW(romeo_and_juliet)[0]) / len(romeo_and_juliet)) * 100}\n")
 
 with open('Le_Tour_du_monde_en_quatre-vingts_jours.txt') as file_object:
 	tour_du_monde = file_object.read()
 
 print(f"Taille du code : {len(LZW(tour_du_monde)[0])}\n\
 Taille du texte : {len(tour_du_monde)}\n\
-Compression de 'Le Tour du monde en quatre-vingts jours' : {(len(LZW(tour_du_monde)[0])/len(tour_du_monde))*100}")
+Compression de 'Le Tour du monde en quatre-vingts jours' : {(len(LZW(tour_du_monde)[0]) / len(tour_du_monde)) * 100}")
