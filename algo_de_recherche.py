@@ -1,4 +1,4 @@
-# Recherhce naïve
+# Recherche naïve
 
 def occurence(m, t, i):
 	for j in range(len(m)):
@@ -50,3 +50,30 @@ def recherche_bm(m, t):
 	return pos
 
 recherche_bm("chercher", "chercher, rechercher et chercher encore")
+
+# Recherche Rabin-Karp
+
+def hash_chaine(s, base=256, mod=101):
+	h = 0
+	for char in s:
+		h = (h * base + ord(char)) % mod
+	return h
+
+def recherche_rk(m, t, base=256, mod=101):
+	len_m = len(m)
+	len_t = len(t)
+	hash_m = hash_chaine(m, base, mod)
+	hash_t = hash_chaine(t[:len_m], base, mod)
+	pos = []
+
+	for i in range(len_t - len_m + 1):
+		if hash_m == hash_t:
+			if t[i:i+len_m] == m:
+				print(f"occurence à la position {i}")
+				pos.append(i)
+		if i < len_t - len_m:
+			hash_t = (hash_t * base - ord(t[i]) * (base ** len_m) + ord(t[i + len_m])) % mod
+			hash_t = (hash_t + mod) % mod
+	return pos
+
+recherche_rk("chercher", "chercher, rechercher et chercher encore")

@@ -61,6 +61,35 @@ Ce dépôt contient plusieurs algorithmes de traitement de texte, notamment pour
               i += decalage(d, j, t[i + j])
   ```
 
+- **Algorithme de Rabin-Karp** :
+  - Utilise une fonction de hachage pour comparer efficacement des sous-chaînes du texte avec le motif.
+  - Complexité en temps : O(n) en moyenne, O(n * m) dans le pire cas (à cause des collisions).
+  - Implémentation :
+  ```python
+  def hash_chaine(s, base=256, mod=101):
+      h = 0
+      for char in s:
+          h = (h * base + ord(char)) % mod
+      return h
+
+  def recherche_rk(m, t, base=256, mod=101):
+      len_m = len(m)
+      len_t = len(t)
+      hash_m = hash_chaine(m, base, mod)
+      hash_t = hash_chaine(t[:len_m], base, mod)
+      pos = []
+
+      for i in range(len_t - len_m + 1):
+          if hash_m == hash_t:
+              if t[i:i+len_m] == m:
+                  print(f"Occurrence à la position {i}")
+                  pos.append(i)
+          if i < len_t - len_m:
+              hash_t = (hash_t * base - ord(t[i]) * (base ** len_m) + ord(t[i + len_m])) % mod
+              hash_t = (hash_t + mod) % mod
+      return pos
+  ```
+
 📌 **Fichier concerné** : `algo_de_recherche.py`
 
 ### 2️⃣ **Compression de Données**
@@ -87,43 +116,43 @@ Ce dépôt contient plusieurs algorithmes de traitement de texte, notamment pour
       return heappop(tas)[2]
 
   def table_frequences(texte):
-  	table = {}
-  	for caractere in texte:
-  		table[caractere] = table.get(caractere, 0) + 1
-  	return table
+      table = {}
+      for caractere in texte:
+          table[caractere] = table.get(caractere, 0) + 1
+      return table
 
   def code_huffman_parcours(arbre, prefixe, code):
-  	if isinstance(arbre, str):
-  		code[arbre] = prefixe
-  	else:
-  		code_huffman_parcours(arbre[0], prefixe + '0', code)
-  		code_huffman_parcours(arbre[1], prefixe + '1', code)
-  
+      if isinstance(arbre, str):
+          code[arbre] = prefixe
+      else:
+          code_huffman_parcours(arbre[0], prefixe + '0', code)
+          code_huffman_parcours(arbre[1], prefixe + '1', code)
+
   def code_huffman(arbre):
-  	code = {}
-  	code_huffman_parcours(arbre, '', code)
-  	return code
-  
+      code = {}
+      code_huffman_parcours(arbre, '', code)
+      return code
+
   def encodage(texte, code):
-  	texte_binaire = ''.join(code[c] for c in texte)
-  	return texte_binaire
-  
+      texte_binaire = ''.join(code[c] for c in texte)
+      return texte_binaire
+
   def decodage(code, texte_binaire):
-  	code_inv = {v: k for k, v in code.items()}
-  	texte = ''
-  	tampon = ''
-  	for b in texte_binaire:
-  		tampon += b
-  		if tampon in code_inv:
-  			texte += code_inv[tampon]
-  			tampon = ''
-  	return texte
+      code_inv = {v: k for k, v in code.items()}
+      texte = ''
+      tampon = ''
+      for b in texte_binaire:
+          tampon += b
+          if tampon in code_inv:
+              texte += code_inv[tampon]
+              tampon = ''
+      return texte
   ```
 
 - **Compression LZW** :
   - Basée sur la substitution de séquences de caractères récurrentes par des codes numériques.
   - Utilise un dictionnaire dynamique pour stocker les nouvelles séquences rencontrées.
-  - Complexité en temps : O(n) dans le meilleur cas, O(n^2) dans le pire cas.
+  - Complexité en temps : O(n) dans le meilleur cas, O(n²) dans le pire cas.
   - Implémentation :
   ```python
   def LZW(texte):
@@ -131,7 +160,7 @@ Ce dépôt contient plusieurs algorithmes de traitement de texte, notamment pour
       code = 8500
       result = []
       current_string = texte[0]
-      
+
       for char in texte[1:]:
           if current_string + char in dictionary:
               current_string += char
